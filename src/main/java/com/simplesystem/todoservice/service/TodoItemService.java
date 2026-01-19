@@ -75,8 +75,9 @@ public class TodoItemService {
         }
     }
 
-    // Marks all NOT_DONE items as PAST_DUE every minute
-    @Scheduled(fixedRate = 60000)
+    // Marks all NOT_DONE items as PAST_DUE
+    // Use scheduler rate configuration passed in through application.properties
+    @Scheduled(fixedRateString = "${todo.pastdue.check.rate-ms}")
     public void markPastDueItems() {
         List<TodoItem> overdueItems =
                 repository.findByStatusAndDueTimeBefore(TodoStatus.NOT_DONE, LocalDateTime.now());
