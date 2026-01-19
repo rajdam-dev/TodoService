@@ -4,6 +4,7 @@ import com.simplesystem.todoservice.dto.UpdateTodoRequest;
 import com.simplesystem.todoservice.model.TodoItem;
 import com.simplesystem.todoservice.model.TodoStatus;
 import com.simplesystem.todoservice.repository.TodoItemRepository;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -74,4 +75,20 @@ public class TodoItemService {
         }
     }
 
+    // Marks all NOT_DONE items as PAST_DUE every minute
+    @Scheduled(fixedRate = 60000)
+    public void markPastDueItems() {
+        List<TodoItem> overdueItems =
+                repository.findByStatusAndDueTimeBefore(TodoStatus.NOT_DONE, LocalDateTime.now());
+
+        if (overdueItems.isEmpty()) {
+            return;
+        }
+
+        for (TodoItem item : overdueItems) {
+            item.setStatus(TodoStatus.PAST_DUE);
+        }
+
+        repository.saveAll(overdueItems);
+    }
 }
