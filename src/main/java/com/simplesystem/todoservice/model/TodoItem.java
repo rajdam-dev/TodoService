@@ -9,7 +9,7 @@ import lombok.*;
 @Getter
 @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
 public class TodoItem {
 
@@ -32,8 +32,15 @@ public class TodoItem {
 
     private LocalDateTime completionTime;
 
-    // Factory method to create TodoItem
+    // Factory method to create valid TodoItem
     public static TodoItem create(String description, LocalDateTime dueTime) {
+        if (description == null || description.isBlank()) {
+            throw new IllegalArgumentException("Description must not be empty");
+        }
+        if (dueTime.isBefore(LocalDateTime.now())) {
+            throw new IllegalArgumentException("Due time must be in the future");
+        }
+
         return TodoItem.builder()
                 .description(description)
                 .dueTime(dueTime)
