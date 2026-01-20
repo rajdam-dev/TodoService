@@ -32,7 +32,9 @@ public class TodoItemService {
         if (includeDone) {
             return repository.findAll();
         }
-        return repository.findByStatus(TodoStatus.NOT_DONE);
+        return repository.findByStatusIn(
+                List.of(TodoStatus.NOT_DONE, TodoStatus.PAST_DUE)
+        );
     }
 
     public TodoItem getById(Long id) {

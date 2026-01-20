@@ -10,7 +10,7 @@ import java.util.List;
 
 public interface TodoItemRepository extends JpaRepository<TodoItem, Long> {
 
-    List<TodoItem> findByStatus(TodoStatus status);
+    List<TodoItem> findByStatusIn(List<TodoStatus> statuses);
     List<TodoItem> findByStatusAndDueTimeBefore(TodoStatus status, LocalDateTime time);
 
 }
