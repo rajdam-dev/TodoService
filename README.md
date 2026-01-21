@@ -3,24 +3,11 @@
 ## Description
 
 A Spring Boot service for managing a to-do list.
-
 This service allows creating, updating, and tracking to-do items, including automatic handling of past-due items.
-
-## Features
-
-- Create a to-do item with description and due date
-- Update description of an item
-- Mark an item as DONE or NOT_DONE
-- Automatically mark items as PAST_DUE when overdue
-- Retrieve:
-    - All NOT_DONE items (default)
-    - All items (including DONE and PAST_DUE)
-- Get details of a specific item
 
 ## Assumptions
 
-- A to-do item can have one of these statuses:
-  NOT_DONE, DONE, PAST_DUE
+- A to-do item can have one of these statuses: NOT_DONE, DONE, PAST_DUE
 - Once an item becomes PAST_DUE, it cannot be modified
 - Default behavior of GET API:
   - GET /todos returns both NOT_DONE and PAST_DUE items
@@ -30,12 +17,13 @@ This service allows creating, updating, and tracking to-do items, including auto
 - Update behavior:
   - dueTime can only be updated for NOT_DONE items
   - description can only be updated for NOT_DONE and DONE items
-- I had two options for handling detection of Past-Due items and chose the scheduled job option:
+  - PUT /todos/{id}/done - explicit end point to mark a todo item as done
+  - PUT /todos/{id}/not-done - explicit end point to mark a todo item as not done
+- I had these two options for handling detection of Past-Due items. I chose the scheduled job option:
   - via a scheduled background job
   - lazily during the GET request
-- Since we use the H2 in-memory database, data is lost when the application is stopped
 - The service has one global to-do list and doesn't support multiple users
-- Note: I did not add delete functionality because that would break history/auditability and the status lifecycle of items (DONE, NOT_DONE, PAST_DUE).
+- Note: I did not add `delete` functionality because that would break history/auditability and the status lifecycle of items (DONE, NOT_DONE, PAST_DUE).
 
 ## Tech stack used
 
@@ -61,8 +49,11 @@ This service allows creating, updating, and tracking to-do items, including auto
     - With Docker: 
       - Build image with: `docker build -t todoservice .`
       - Run container with: `docker run -p 8080:8080 todoservice`
-  - After this, you can access the service end points at `http://localhost:8080/todos`
-  - Here is the list of end points:
+  - You can access the service end points at `http://localhost:8080/todos`
+
+## List of API end points
+  - Swagger UI is available at `http://localhost:8080/swagger-ui/index.html`
+  - Here is the list:
     - `POST /todos` - creates a todo item
     - `GET /todos` - retrieves todo items which are not completed
     - `GET /todos?includeDone=true` - retrieves all todo items
@@ -70,7 +61,6 @@ This service allows creating, updating, and tracking to-do items, including auto
     - `PATCH /todos/{id}` - partial updates to a todo item (description and/or due date)
     - `PUT /todos/{id}/done` - marks a todo item as done
     - `PUT /todos/{id}/not-done` - marks a todo item as not done
-  - Swagger UI is available at `http://localhost:8080/swagger-ui/index.html`
 
 ## Code Coverage
 - This project uses JaCoCo for code coverage. To generate coverage report, run: `mvn clean test`
