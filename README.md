@@ -35,6 +35,7 @@ This service allows creating, updating, and tracking to-do items, including auto
   - lazily during the GET request
 - Since we use the H2 in-memory database, data is lost when the application is stopped
 - The service has one global to-do list and doesn't support multiple users
+- Note: I did not add delete functionality because that would break history/auditability and the status lifecycle of items (DONE, NOT_DONE, PAST_DUE).
 
 ## Tech stack used
 
@@ -70,3 +71,8 @@ This service allows creating, updating, and tracking to-do items, including auto
     - `PUT /todos/{id}/done` - marks a todo item as done
     - `PUT /todos/{id}/not-done` - marks a todo item as not done
   - Swagger UI is available at `http://localhost:8080/swagger-ui/index.html`
+
+## Code Coverage
+- This project uses JaCoCo for code coverage. To generate coverage report, run: `mvn clean test`
+- The report will be generated in target/site/jacoco/index.html
+- Current coverage is 91%

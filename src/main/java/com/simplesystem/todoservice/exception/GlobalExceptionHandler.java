@@ -1,7 +1,6 @@
 package com.simplesystem.todoservice.exception;
 
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 

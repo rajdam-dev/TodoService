@@ -4,7 +4,6 @@ import com.simplesystem.todoservice.dto.*;
 import com.simplesystem.todoservice.model.TodoItem;
 import com.simplesystem.todoservice.service.TodoItemService;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 
 @RestController

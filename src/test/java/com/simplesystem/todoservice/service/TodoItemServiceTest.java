@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -108,53 +109,114 @@ public class TodoItemServiceTest {
     }
 
     @Test
-    void canUpdateDueTimeWhenNotDone() {
-        TodoItem item = repository.save(
-                TodoItem.create("Task", LocalDateTime.now().plusMinutes(10))
-        );
-
-        LocalDateTime newDueTime = LocalDateTime.now().plusMinutes(30);
-
-        TodoItem updated = service.updateDueTime(item.getId(), newDueTime);
-
-        assertThat(updated.getDueTime()).isEqualTo(newDueTime);
+    void create_rejectsBlankDescription() {
+        assertThatThrownBy(() ->
+                service.create("   ", LocalDateTime.now().plusMinutes(5))
+        ).isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Description");
     }
 
     @Test
-    void cannotUpdateDueTimeWhenDone() {
-        TodoItem item = repository.save(
-                TodoItem.create("Task", LocalDateTime.now().plusMinutes(10))
-        );
-        item.setStatus(TodoStatus.DONE);
-        repository.save(item);
+    void updateDescription_updatesSuccessfully() {
+        TodoItem item = service.create("Original", LocalDateTime.now().plusMinutes(10));
 
-        assertThatThrownBy(() ->
-                service.updateDueTime(item.getId(), LocalDateTime.now().plusMinutes(20))
-        ).isInstanceOf(IllegalStateException.class);
+        TodoItem updated = service.updateDescription(item.getId(), "Updated desc");
+
+        assertThat(updated.getDescription()).isEqualTo("Updated desc");
+
+        TodoItem reloaded = repository.findById(item.getId()).orElseThrow();
+        assertThat(reloaded.getDescription()).isEqualTo("Updated desc");
     }
 
     @Test
-    void cannotUpdateDueTimeWhenPastDue() {
-        TodoItem item = repository.save(
-                TodoItem.create("Task", LocalDateTime.now().plusMinutes(10))
-        );
-        item.setStatus(TodoStatus.PAST_DUE);
-        repository.save(item);
-
+    void updateDescription_throwsIfItemNotFound() {
         assertThatThrownBy(() ->
-                service.updateDueTime(item.getId(), LocalDateTime.now().plusMinutes(20))
-        ).isInstanceOf(IllegalStateException.class);
+                service.updateDescription(999L, "Updated")
+        ).isInstanceOf(NoSuchElementException.class)
+                .hasMessageContaining("Todo item not found");
     }
 
     @Test
-    void cannotUpdateDueTimeToPast() {
-        TodoItem item = repository.save(
-                TodoItem.create("Task", LocalDateTime.now().plusMinutes(10))
-        );
+    void updateDescription_throwsIfItemIsPastDue() {
+        TodoItem item = TodoItem.builder()
+                .description("Task")
+                .dueTime(LocalDateTime.now().minusMinutes(10))
+                .creationTime(LocalDateTime.now().minusHours(1))
+                .status(TodoStatus.PAST_DUE)
+                .build();
+
+        TodoItem saved = repository.save(item);
 
         assertThatThrownBy(() ->
-                service.updateDueTime(item.getId(), LocalDateTime.now().minusMinutes(5))
-        ).isInstanceOf(IllegalArgumentException.class);
+                service.updateDescription(saved.getId(), "Updated")
+        ).isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("past");
+    }
+
+    @Test
+    void updateDescription_rejectsBlankDescription() {
+        TodoItem item = service.create("Original", LocalDateTime.now().plusMinutes(10));
+
+        assertThatThrownBy(() ->
+                service.updateDescription(item.getId(), "   ")
+        ).isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Description");
+    }
+
+    @Test
+    void updateDueTime_updatesSuccessfully() {
+        TodoItem item = service.create("Task", LocalDateTime.now().plusMinutes(10));
+
+        LocalDateTime newDue = LocalDateTime.now().plusMinutes(30);
+
+        TodoItem updated = service.updateDueTime(item.getId(), newDue);
+
+        assertThat(updated.getDueTime()).isEqualTo(newDue);
+    }
+
+    @Test
+    void updateDueTime_rejectsPastDate() {
+        TodoItem item = service.create("Task", LocalDateTime.now().plusMinutes(10));
+
+        assertThatThrownBy(() ->
+                service.updateDueTime(item.getId(), LocalDateTime.now().minusMinutes(1))
+        ).isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("future");
+    }
+
+    @Test
+    void updateDueTime_rejectsIfDone() {
+        TodoItem item = service.create("Task", LocalDateTime.now().plusMinutes(10));
+        service.markDone(item.getId());
+
+        assertThatThrownBy(() ->
+                service.updateDueTime(item.getId(), LocalDateTime.now().plusMinutes(30))
+        ).isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("NOT_DONE");
+    }
+
+    @Test
+    void updateDueTime_rejectsIfPastDue() {
+        TodoItem item = TodoItem.builder()
+                .description("Task")
+                .dueTime(LocalDateTime.now().minusMinutes(10))
+                .creationTime(LocalDateTime.now().minusHours(1))
+                .status(TodoStatus.PAST_DUE)
+                .build();
+
+        TodoItem saved = repository.save(item);
+
+        assertThatThrownBy(() ->
+                service.updateDueTime(saved.getId(), LocalDateTime.now().plusMinutes(30))
+        ).isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("past");
+    }
+
+    @Test
+    void updateDueTime_throwsIfItemNotFound() {
+        assertThatThrownBy(() ->
+                service.updateDueTime(999L, LocalDateTime.now().plusMinutes(10))
+        ).isInstanceOf(NoSuchElementException.class);
     }
 
 }

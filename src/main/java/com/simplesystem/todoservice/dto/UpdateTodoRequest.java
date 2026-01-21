@@ -1,7 +1,6 @@
 package com.simplesystem.todoservice.dto;
 
 import lombok.Data;
-
 import java.time.LocalDateTime;
 
 @Data

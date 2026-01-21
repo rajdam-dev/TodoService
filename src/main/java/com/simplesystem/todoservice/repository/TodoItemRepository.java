@@ -1,6 +1,5 @@
 package com.simplesystem.todoservice.repository;
 
-
 import com.simplesystem.todoservice.model.TodoItem;
 import com.simplesystem.todoservice.model.TodoStatus;
 import org.springframework.data.jpa.repository.JpaRepository;

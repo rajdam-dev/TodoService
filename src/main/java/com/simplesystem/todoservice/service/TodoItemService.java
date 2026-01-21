@@ -1,6 +1,5 @@
 package com.simplesystem.todoservice.service;
 
-import com.simplesystem.todoservice.dto.UpdateTodoRequest;
 import com.simplesystem.todoservice.model.TodoItem;
 import com.simplesystem.todoservice.model.TodoStatus;
 import com.simplesystem.todoservice.repository.TodoItemRepository;
@@ -61,6 +60,10 @@ public class TodoItemService {
     public TodoItem updateDescription(Long id, String newDescription) {
         TodoItem item = getById(id);
         ensureNotPastDue(item);
+
+        if (newDescription == null || newDescription.isBlank()) {
+            throw new IllegalArgumentException("Description must not be empty");
+        }
 
         item.setDescription(newDescription);
         return repository.save(item);
