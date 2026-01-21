@@ -6,7 +6,7 @@ A Spring Boot service for managing a to-do list.
 
 This service allows creating, updating, and tracking to-do items, including automatic handling of past-due items.
 
-## 📌 Features
+## Features
 
 - Create a to-do item with description and due date
 - Update description of an item
@@ -52,7 +52,7 @@ This service allows creating, updating, and tracking to-do items, including auto
   - From root directory of the project, run `mvn clean test`
 
 ## How to run the service locally
-  - There are multiple ways to run the service locally -
+  - There are multiple ways to run the service locally-
     - From root directory of the project, run `java -jar target/todoservice-0.0.1-SNAPSHOT.jar`
     - With Docker: 
       - Build image with: `docker build -t todoservice .`
@@ -66,3 +66,4 @@ This service allows creating, updating, and tracking to-do items, including auto
     - `PATCH /todos/{id}` - partial updates to a todo item
     - `PUT /todos/{id}/done` - marks a todo item as done
     - `PUT /todos/{id}/not-done` - marks a todo item as not done
+  - Swagger UI is available at `http://localhost:8080/swagger-ui/index.html`
