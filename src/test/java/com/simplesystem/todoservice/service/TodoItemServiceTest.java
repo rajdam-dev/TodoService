@@ -106,4 +106,55 @@ public class TodoItemServiceTest {
 
         assertThat(result).hasSize(2);
     }
+
+    @Test
+    void canUpdateDueTimeWhenNotDone() {
+        TodoItem item = repository.save(
+                TodoItem.create("Task", LocalDateTime.now().plusMinutes(10))
+        );
+
+        LocalDateTime newDueTime = LocalDateTime.now().plusMinutes(30);
+
+        TodoItem updated = service.updateDueTime(item.getId(), newDueTime);
+
+        assertThat(updated.getDueTime()).isEqualTo(newDueTime);
+    }
+
+    @Test
+    void cannotUpdateDueTimeWhenDone() {
+        TodoItem item = repository.save(
+                TodoItem.create("Task", LocalDateTime.now().plusMinutes(10))
+        );
+        item.setStatus(TodoStatus.DONE);
+        repository.save(item);
+
+        assertThatThrownBy(() ->
+                service.updateDueTime(item.getId(), LocalDateTime.now().plusMinutes(20))
+        ).isInstanceOf(IllegalStateException.class);
+    }
+
+    @Test
+    void cannotUpdateDueTimeWhenPastDue() {
+        TodoItem item = repository.save(
+                TodoItem.create("Task", LocalDateTime.now().plusMinutes(10))
+        );
+        item.setStatus(TodoStatus.PAST_DUE);
+        repository.save(item);
+
+        assertThatThrownBy(() ->
+                service.updateDueTime(item.getId(), LocalDateTime.now().plusMinutes(20))
+        ).isInstanceOf(IllegalStateException.class);
+    }
+
+    @Test
+    void cannotUpdateDueTimeToPast() {
+        TodoItem item = repository.save(
+                TodoItem.create("Task", LocalDateTime.now().plusMinutes(10))
+        );
+
+        assertThatThrownBy(() ->
+                service.updateDueTime(item.getId(), LocalDateTime.now().minusMinutes(5))
+        ).isInstanceOf(IllegalArgumentException.class);
+    }
+
 }

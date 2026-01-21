@@ -39,14 +39,23 @@ public class TodoItemController {
         return TodoResponse.fromEntity(service.getById(id));
     }
 
-    // Update description only
+    // Update due_time and/or description
     @PatchMapping("/{id}")
-    public TodoResponse updateDescription(
+    public TodoResponse update(
             @PathVariable Long id,
             @RequestBody UpdateTodoRequest request
     ) {
-        TodoItem updated = service.updateDescription(id, request.getDescription());
-        return TodoResponse.fromEntity(updated);
+        TodoItem item = service.getById(id);
+
+        if (request.getDescription() != null) {
+            item = service.updateDescription(id, request.getDescription());
+        }
+
+        if (request.getDueTime() != null) {
+            item = service.updateDueTime(id, request.getDueTime());
+        }
+
+        return TodoResponse.fromEntity(item);
     }
 
     // Mark as DONE

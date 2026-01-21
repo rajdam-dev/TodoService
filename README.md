@@ -27,6 +27,9 @@ This service allows creating, updating, and tracking to-do items, including auto
   - GET /todos?includeDone=true returns all items
 - creationTime is set automatically by the backend and cannot be provided by the client
 - completionTime is set automatically when marking as DONE and cleared when marking as NOT_DONE
+- Update behavior:
+  - dueTime can only be updated for NOT_DONE items
+  - description can only be updated for NOT_DONE and DONE items
 - I had two options for handling detection of Past-Due items and chose the scheduled job option:
   - via a scheduled background job
   - lazily during the GET request
@@ -63,7 +66,7 @@ This service allows creating, updating, and tracking to-do items, including auto
     - `GET /todos` - retrieves todo items which are not completed
     - `GET /todos?includeDone=true` - retrieves all todo items
     - `GET /todos/{id}` - retrieves a todo item by id
-    - `PATCH /todos/{id}` - partial updates to a todo item
+    - `PATCH /todos/{id}` - partial updates to a todo item (description and/or due date)
     - `PUT /todos/{id}/done` - marks a todo item as done
     - `PUT /todos/{id}/not-done` - marks a todo item as not done
   - Swagger UI is available at `http://localhost:8080/swagger-ui/index.html`

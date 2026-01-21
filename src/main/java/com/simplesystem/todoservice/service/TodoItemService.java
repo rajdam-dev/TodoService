@@ -42,6 +42,22 @@ public class TodoItemService {
                 .orElseThrow(() -> new NoSuchElementException("Todo item not found: " + id));
     }
 
+    public TodoItem updateDueTime(Long id, LocalDateTime newDueTime) {
+        TodoItem item = getById(id);
+        ensureNotPastDue(item);
+
+        if (item.getStatus() != TodoStatus.NOT_DONE) {
+            throw new IllegalStateException("Due time can only be changed when item is NOT_DONE");
+        }
+
+        if (newDueTime.isBefore(LocalDateTime.now())) {
+            throw new IllegalArgumentException("Due time must be in the future");
+        }
+
+        item.setDueTime(newDueTime);
+        return repository.save(item);
+    }
+
     public TodoItem updateDescription(Long id, String newDescription) {
         TodoItem item = getById(id);
         ensureNotPastDue(item);
